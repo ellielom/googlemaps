@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>Google Maps API</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <style>
+            html, body {
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+
+            #map {
+                height: 100%;
+            }
+
+            .formfloat {
+                position: fixed;
+                z-index: 10;
+                left: 10px;
+                bottom: 10px;
+                width: 100%;
+            }
+
+            .text {
+                border-radius: 20px;
+                width: 25%;
+                height: 200%;
+                padding-left: 5px;
+                padding-top: 10px;
+                padding-bottom: 10px;
+                visibility: hidden; 
+                bottom: 30px;
+                left: 3%;
+                position: absolute;
+                border: 1px solid rgb(45,151,2014);
+
+            } 
+
+            .text:enabled {
+                visibility: visible;
+            }
+
+            .search {
+                bottom: 30px;
+                left: 30px;
+                height: 75px;
+                width: 75px;
+                position:absolute;
+            }
+
+            .search:disabled {
+                visibility: hidden;
+            }
+
+            .text:focus {
+                border-radius: 20px;
+                color: rgb(45,151,201);
+            }
+            .button {
+                background-color: rgb(45,151,2014); 
+                color: white; 
+                border-radius: 20px; 
+                bottom: 30px;
+                left: 29%;
+                position: absolute;
+                height:200%;
+                padding-top: 1px;
+                padding-bottom: 17px;
+
+            }
+
+            .button:disabled
+            {
+                background-color: gray;
+                visibility: hidden;
+
+            }
+        </style>
+
+    </head>
+    <body onload="enabledSearch(false)">
+        <div id="map"></div>
+
+
+
+
+
+        <script>
+
+            function initMap()
+            {
+                var home = {lat: 43.707955, lng: -79.751521}
+                var map = new google.maps.Map(document.getElementById('map'), {
+                    zoom: 15,
+                    center: home,
+                });
+                var marker = new google.maps.Marker({
+                    position: home,
+                    map: map,
+                });
+                var geo = new google.maps.Geocoder();
+                var infowindow = new google.maps.InfoWindow;
+                document.getElementById('myButton').addEventListener('click', function () {
+                    moveToAddress(geo, map, infowindow);
+                });
+            }
+
+            function moveToAddress(geo, map, infowindow) {
+                var address = document.getElementById('userInputAddress').value;
+                geo.geocode({'address': address}, function (results, status) {
+                    if (status === 'OK') {
+                        map.setCenter(results[0].geometry.location);
+                        var marker = new google.maps.Marker({
+                            map: map,
+                            position: results[0].geometry.location,
+
+                        });
+                        infowindow.setContent(results[0].formatted_address);
+                        infowindow.open(map, marker);
+                    } else {
+                        alert('Geocode was not successful for the following reason: ' + status);
+                    }
+                });
+            }
+
+            function enableButton(enabledStatus) {
+                document.getElementById("myButton").disabled = enabledStatus;
+                if (enabledStatus)
+                {
+                    enabledSearch(false);
+                }
+
+            }
+
+            function enabledSearch(enabledStatus)
+            {
+
+                var visibilityStatus;
+                if (!enabledStatus)
+                {
+                    visibilityStatus = "visible";
+                } else {
+                    visibilityStatus = "hidden";
+                }
+
+                document.getElementById("userInputAddress").disabled = !enabledStatus;
+
+                document.getElementById("searchImage").style.visibility = visibilityStatus;
+
+
+            }
+
+        </script>
+        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA1qTme4qR6Ssrf-FoPrNc4n639CDieEGc&callback=initMap" async defer></script>
+
+        <div class ='formfloat'>
+            <form id="myForm">
+
+                <img src="bluesearch.png" onclick="enabledSearch(true);" id="searchImage" class="search"  >
+                <input id="userInputAddress" type="text"  placeholder="Enter an address" class="text" onfocus="enableButton(false);">
+                <input id="myButton" type="button" value="Go!" class="button" disabled onclick="enableButton(true);">
+
+            </form>
+        </div>
+    </body>
+</html>
